@@ -15,7 +15,7 @@ main{max-width:1120px;margin:22px auto;padding:0 16px}.book{position:relative;mi
 let stories={en:[],fr:[]}
 const $=id=>document.getElementById(id);
 const stored=(()=>{try{return JSON.parse(localStorage.getItem("life-rpg-storybook")||"{}")}catch{return {}}})();
-let lang=stored.lang==="fr"?"fr":"en",scene=Math.max(0,Math.min(22,stored.scene||0)),pageIndex=stored.page||0,parts=[];
+let lang=stored.lang==="fr"?"fr":"en",scene=Math.max(0,Math.max(0,stored.scene||0)),pageIndex=stored.page||0,parts=[];
 const labels={en:{contents:"Contents",previous:"Previous",next:"Next",tip:"Swipe or use arrow keys to turn pages · Progress saved on this device",scene:"Scene",page:"Page",of:"of"},fr:{contents:"Sommaire",previous:"Précédente",next:"Suivante",tip:"Glissez ou utilisez les flèches du clavier · Progression sauvegardée sur cet appareil",scene:"Scène",page:"Page",of:"sur"}};
 function escapeHTML(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}
 function format(line){let s=escapeHTML(line);s=s.replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/\*(.*?)\*/g,"<em>$1</em>").replace(/~~(.*?)~~/g,"<del>$1</del>").replace(/`(.*?)`/g,"<code>$1</code>");return s}
@@ -38,13 +38,14 @@ async function loadStorybook(){
     const responses=await Promise.all(["en","fr"].map(lang=>fetch("story-content/chapter-one-"+lang+".json",{cache:"no-cache"})));
     for(const response of responses)if(!response.ok)throw Error("Story content request failed: "+response.status);
     const [en,fr]=await Promise.all(responses.map(response=>response.json()));
-    if(!Array.isArray(en)||!Array.isArray(fr)||en.length!==23||fr.length!==23)throw Error("Incomplete story content");
+    if(!Array.isArray(en)||!Array.isArray(fr)||!en.length||en.length!==fr.length)throw Error("Incomplete or mismatched story content");
     for(const scenes of [en,fr])for(let i=0;i<scenes.length;i++)if(scenes[i].n!==i+1||!scenes[i].body||!scenes[i].title)throw Error("Invalid scene "+(i+1));
     stories={en,fr};
+    scene=Math.min(scene,stories[lang].length-1);
     render();
   }catch(error){
     console.error("Unable to load Storybook:",error);
-    document.querySelector(".story").textContent="The story could not be loaded. Please refresh the page.";
+    $("page").textContent="The story could not be loaded. Please refresh the page.";
   }
 }
 loadStorybook();
