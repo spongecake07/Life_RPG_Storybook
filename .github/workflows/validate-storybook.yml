@@ -1,0 +1,26 @@
+name: Validate Storybook
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - scripts/validate-storybook.cjs
+      - story-locks.json
+      - .github/workflows/validate-storybook.yml
+  pull_request:
+    paths:
+      - index.html
+      - scripts/validate-storybook.cjs
+      - story-locks.json
+      - .github/workflows/validate-storybook.yml
+  workflow_dispatch:
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate bilingual scenes and optional locks
+        run: node scripts/validate-storybook.cjs
