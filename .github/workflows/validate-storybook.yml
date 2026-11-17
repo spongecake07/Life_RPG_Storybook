@@ -4,12 +4,14 @@ on:
     branches: [main]
     paths:
       - index.html
+      - story-content/**
       - scripts/validate-storybook.cjs
       - story-locks.json
       - .github/workflows/validate-storybook.yml
   pull_request:
     paths:
       - index.html
+      - story-content/**
       - scripts/validate-storybook.cjs
       - story-locks.json
       - .github/workflows/validate-storybook.yml
@@ -22,5 +24,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate bilingual scenes and optional locks
+      - name: Validate canonical bilingual scenes and optional locks
         run: node scripts/validate-storybook.cjs
